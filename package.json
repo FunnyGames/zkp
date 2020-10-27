@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/FunnyGames/zkp#readme",
   "dependencies": {
+    "big-integer": "^1.6.48",
     "crypto-js": "^4.0.0",
     "express": "^4.17.1"
   }
