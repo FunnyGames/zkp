@@ -1,7 +1,12 @@
 const services = require('./services');
 
-module.exports.main = (req, res, next) => {
-    let resp = services.main();
+module.exports.startSimulation = (req, res, next) => {
+    let resp = services.startSimulation(req.body);
+    res.status(resp.status).send(resp.data);
+}
+
+module.exports.nextIteration = (req, res, next) => {
+    let resp = services.nextIteration(req.body);
     res.status(resp.status).send(resp.data);
 }
 

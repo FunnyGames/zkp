@@ -3,7 +3,8 @@ const router = express.Router();
 
 const controllers = require('./controllers');
 
-router.get('/api/main', controllers.main);
+router.post('/api/start', controllers.startSimulation);
+router.post('/api/next', controllers.nextIteration);
 
 router.use('*', controllers.indexFile);
 
