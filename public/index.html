@@ -2,11 +2,224 @@
 
 <head>
     <title>Client ZKP</title>
+    <link rel="stylesheet" href="style.css">
     <script src="index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
+    <div class="container">
     <p>Sudoku Prover</p>
+    <table id="sudoku">
+        <tbody>
+            <tr id="p0">
+                <td id="0x0"><input type="number" /></td>
+                <td id="0x1"><input type="number" /></td>
+                <td id="0x2"><input type="number" /></td>
+                <td id="0x3"><input type="number" /></td>
+                <td id="0x4"><input type="number" /></td>
+                <td id="0x5"><input type="number" /></td>
+                <td id="0x6"><input type="number" /></td>
+                <td id="0x7"><input type="number" /></td>
+                <td id="0x8"><input type="number" /></td>
+            </tr>
+            <tr id="p1">
+                <td id="1x0"><input type="number" /></td>
+                <td id="1x1"><input type="number" /></td>
+                <td id="1x2"><input type="number" /></td>
+                <td id="1x3"><input type="number" /></td>
+                <td id="1x4"><input type="number" /></td>
+                <td id="1x5"><input type="number" /></td>
+                <td id="1x6"><input type="number" /></td>
+                <td id="1x7"><input type="number" /></td>
+                <td id="1x8"><input type="number" /></td>
+            </tr>
+            <tr id="p2">
+                <td id="2x0"><input type="number" /></td>
+                <td id="2x1"><input type="number" /></td>
+                <td id="2x2"><input type="number" /></td>
+                <td id="2x3"><input type="number" /></td>
+                <td id="2x4"><input type="number" /></td>
+                <td id="2x5"><input type="number" /></td>
+                <td id="2x6"><input type="number" /></td>
+                <td id="2x7"><input type="number" /></td>
+                <td id="2x8"><input type="number" /></td>
+            </tr>
+            <tr id="p3">
+                <td id="3x0"><input type="number" /></td>
+                <td id="3x1"><input type="number" /></td>
+                <td id="3x2"><input type="number" /></td>
+                <td id="3x3"><input type="number" /></td>
+                <td id="3x4"><input type="number" /></td>
+                <td id="3x5"><input type="number" /></td>
+                <td id="3x6"><input type="number" /></td>
+                <td id="3x7"><input type="number" /></td>
+                <td id="3x8"><input type="number" /></td>
+            </tr>
+            <tr id="p4"> 
+                <td id="4x0"><input type="number" /></td>
+                <td id="4x1"><input type="number" /></td>
+                <td id="4x2"><input type="number" /></td>
+                <td id="4x3"><input type="number" /></td>
+                <td id="4x4"><input type="number" /></td>
+                <td id="4x5"><input type="number" /></td>
+                <td id="4x6"><input type="number" /></td>
+                <td id="4x7"><input type="number" /></td>
+                <td id="4x8"><input type="number" /></td>
+            </tr>
+            <tr id="p5">
+                <td id="5x0"><input type="number" /></td>
+                <td id="5x1"><input type="number" /></td>
+                <td id="5x2"><input type="number" /></td>
+                <td id="5x3"><input type="number" /></td>
+                <td id="5x4"><input type="number" /></td>
+                <td id="5x5"><input type="number" /></td>
+                <td id="5x6"><input type="number" /></td>
+                <td id="5x7"><input type="number" /></td>
+                <td id="5x8"><input type="number" /></td>
+            </tr>
+            <tr id="p6">
+                <td id="6x0"><input type="number" /></td>
+                <td id="6x1"><input type="number" /></td>
+                <td id="6x2"><input type="number" /></td>
+                <td id="6x3"><input type="number" /></td>
+                <td id="6x4"><input type="number" /></td>
+                <td id="6x5"><input type="number" /></td>
+                <td id="6x6"><input type="number" /></td>
+                <td id="6x7"><input type="number" /></td>
+                <td id="6x8"><input type="number" /></td>
+            </tr>
+            <tr id="p7">
+                <td id="7x0"><input type="number" /></td>
+                <td id="7x1"><input type="number" /></td>
+                <td id="7x2"><input type="number" /></td>
+                <td id="7x3"><input type="number" /></td>
+                <td id="7x4"><input type="number" /></td>
+                <td id="7x5"><input type="number" /></td>
+                <td id="7x6"><input type="number" /></td>
+                <td id="7x7"><input type="number" /></td>
+                <td id="7x8"><input type="number" /></td>
+            </tr>
+            <tr id="p8">
+                <td id="8x0"><input type="number" /></td>
+                <td id="8x1"><input type="number" /></td>
+                <td id="8x2"><input type="number" /></td>
+                <td id="8x3"><input type="number" /></td>
+                <td id="8x4"><input type="number" /></td>
+                <td id="8x5"><input type="number" /></td>
+                <td id="8x6"><input type="number" /></td>
+                <td id="8x7"><input type="number" /></td>
+                <td id="8x8"><input type="number" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <p id="reli"></p>
+    <button class="btn btn-dafault">Send to verifer</button>
+    <p>Sudoku Verifier</p>
+    <table id="sudoku">
+        <tbody>
+            <tr>
+                <td id="v0x0"><input type="number" /></td>
+                <td id="v0x1"><input type="number" /></td>
+                <td id="v0x2"><input type="number" /></td>
+                <td id="v0x3"><input type="number" /></td>
+                <td id="v0x4"><input type="number" /></td>
+                <td id="v0x5"><input type="number" /></td>
+                <td id="v0x6"><input type="number" /></td>
+                <td id="v0x7"><input type="number" /></td>
+                <td id="v0x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v1x0"><input type="number" /></td>
+                <td id="v1x1"><input type="number" /></td>
+                <td id="v1x2"><input type="number" /></td>
+                <td id="v1x3"><input type="number" /></td>
+                <td id="v1x4"><input type="number" /></td>
+                <td id="v1x5"><input type="number" /></td>
+                <td id="v1x6"><input type="number" /></td>
+                <td id="v1x7"><input type="number" /></td>
+                <td id="v1x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v2x0"><input type="number" /></td>
+                <td id="v2x1"><input type="number" /></td>
+                <td id="v2x2"><input type="number" /></td>
+                <td id="v2x3"><input type="number" /></td>
+                <td id="v2x4"><input type="number" /></td>
+                <td id="v2x5"><input type="number" /></td>
+                <td id="v2x6"><input type="number" /></td>
+                <td id="v2x7"><input type="number" /></td>
+                <td id="v2x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v3x0"><input type="number" /></td>
+                <td id="v3x1"><input type="number" /></td>
+                <td id="v3x2"><input type="number" /></td>
+                <td id="v3x3"><input type="number" /></td>
+                <td id="v3x4"><input type="number" /></td>
+                <td id="v3x5"><input type="number" /></td>
+                <td id="v3x6"><input type="number" /></td>
+                <td id="v3x7"><input type="number" /></td>
+                <td id="v3x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v4x0"><input type="number" /></td>
+                <td id="v4x1"><input type="number" /></td>
+                <td id="v4x2"><input type="number" /></td>
+                <td id="v4x3"><input type="number" /></td>
+                <td id="v4x4"><input type="number" /></td>
+                <td id="v4x5"><input type="number" /></td>
+                <td id="v4x6"><input type="number" /></td>
+                <td id="v4x7"><input type="number" /></td>
+                <td id="v4x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v5x0"><input type="number" /></td>
+                <td id="v5x1"><input type="number" /></td>
+                <td id="v5x2"><input type="number" /></td>
+                <td id="v5x3"><input type="number" /></td>
+                <td id="v5x4"><input type="number" /></td>
+                <td id="v5x5"><input type="number" /></td>
+                <td id="v5x6"><input type="number" /></td>
+                <td id="v5x7"><input type="number" /></td>
+                <td id="v5x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v6x0"><input type="number" /></td>
+                <td id="v6x1"><input type="number" /></td>
+                <td id="v6x2"><input type="number" /></td>
+                <td id="v6x3"><input type="number" /></td>
+                <td id="v6x4"><input type="number" /></td>
+                <td id="v6x5"><input type="number" /></td>
+                <td id="v6x6"><input type="number" /></td>
+                <td id="v6x7"><input type="number" /></td>
+                <td id="v6x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v7x0"><input type="number" /></td>
+                <td id="v7x1"><input type="number" /></td>
+                <td id="v7x2"><input type="number" /></td>
+                <td id="v7x3"><input type="number" /></td>
+                <td id="v7x4"><input type="number" /></td>
+                <td id="v7x5"><input type="number" /></td>
+                <td id="v7x6"><input type="number" /></td>
+                <td id="v7x7"><input type="number" /></td>
+                <td id="v7x8"><input type="number" /></td>
+            </tr>
+            <tr>
+                <td id="v8x0"><input type="number" /></td>
+                <td id="v8x1"><input type="number" /></td>
+                <td id="v8x2"><input type="number" /></td>
+                <td id="v8x3"><input type="number" /></td>
+                <td id="v8x4"><input type="number" /></td>
+                <td id="v8x5"><input type="number" /></td>
+                <td id="v8x6"><input type="number" /></td>
+                <td id="v8x7"><input type="number" /></td>
+                <td id="v8x8"><input type="number" /></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 
 </html>
