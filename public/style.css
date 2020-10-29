@@ -3,26 +3,34 @@
 * {
   box-sizing: border-box;
 }
+
 table {
   margin: auto;
+  text-align: center;
 }
+
 tr:first-child td {
   border-top-color: black;
 }
+
 tr:nth-child(3n) td {
   border-bottom-color: black;
 }
+
 td {
   border: 1px solid lightgrey;
   height: 40px;
   width: 40px;
 }
+
 td:first-child {
   border-left-color: black;
 }
+
 td:nth-child(3n) {
   border-right-color: black;
 }
+
 input {
   padding: 0;
   text-align: center;
@@ -35,6 +43,27 @@ input {
 input:hover {
   background: #eee;
 }
+
 .container {
   text-align: center;
+}
+
+.error-div {
+  border-radius: 6px;
+  border-width: 1px;
+  border-style: solid;
+  background-color: indianred;
+  border-color: darkred;
+  margin-bottom: 5px;
+  display: none;
+}
+
+.container-control {
+  border-radius: 6px;
+  border-width: 1px;
+  border-style: solid;
+  width: 450px;
+  margin-top: 5px;
+  margin-left: 50%;
+  transform: translate(-50%, 0);
 }

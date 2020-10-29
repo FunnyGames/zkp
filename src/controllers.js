@@ -11,5 +11,5 @@ module.exports.nextIteration = (req, res, next) => {
 }
 
 module.exports.indexFile = (req, res, next) => {
-    res.sendFile('/index.html'  ,{ root: __dirname });
+    res.sendFile('/index.html', { root: __dirname });
 }

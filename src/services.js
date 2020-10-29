@@ -5,7 +5,7 @@ const memory = {};
 
 function getNext() {
     let type = utils.randomType();
-    let cord = utils.randomNumber(0, 10);
+    let cord = utils.randomNumber(0, 9);
     return { type, cord };
 }
 
@@ -56,20 +56,20 @@ function deleteSudoku(uuid) {
     delete memory[uuid];
     console.log('Deleted uuid - ' + uuid);
     console.log('Current memory:');
-    console.log(memory);
+    console.log({ memory });
 }
 
 module.exports.startSimulation = (data) => {
     let { uuid } = data;
+    let { type, cord } = getNext();
     memory[uuid] = {
         board: utils.createEmptySudoku(),
         trust: 0,
-    };
-    let { type, cord } = getNext();
-    let res = {
-        ...memory[uuid],
         type,
         cord,
+    };
+    let res = {
+        ...memory[uuid],
         isTrustful: false,
     };
     setTimeout(() => deleteSudoku(uuid), 200000);
@@ -79,27 +79,41 @@ module.exports.startSimulation = (data) => {
 module.exports.nextIteration = (data) => {
     let { uuid, array, type: t, cord: c } = data;
     let mem = memory[uuid];
-    if (!mem) return response(404, 'Not Found');
+    if (!mem) {
+        return response(404, { error: 'Not Found' });
+    }
+    if (mem.cord !== c && mem.type !== t) {
+        console.log(`Wrong values received: cord: ${c}, type: ${t}, expected: cord: ${mem.cord}, type: ${mem.type}`);
+        return response(400, { error: 'Failed. Wrong values received.', ...mem, isTrustful: false });
+    }
+    let prevTotalSolved = utils.countSolved(mem.board);
     addInfoToBoard(mem.board, array, t, c);
     let isValid = validateBoard(mem.board);
     if (!isValid) {
         console.log('Board is not valid');
+        let resData = { error: 'Failed. Wrong solution.', ...mem, isTrustful: false };
         deleteSudoku(uuid);
-        return response(400, 'Failed. Wrong solution.');
+        return response(400, resData);
     } else {
-        mem.trust += 1 / 27;
-        if (mem.trust > 1) mem.trust = 1;
+        let totalSolved = utils.countSolved(mem.board);
+        let diff = totalSolved - prevTotalSolved;
+        mem.trust += diff / mem.board.length;
+        if (diff === 0) {
+            mem.trust += 0.03;
+        }
+        console.log('total solved: ', totalSolved);
     }
     let isTrustful = false;
     if (mem.trust > 0.8) {
         console.log('Client is trustful');
         isTrustful = true;
+        deleteSudoku(uuid);
     }
     let { type, cord } = getNext();
+    mem.type = type;
+    mem.cord = cord;
     let res = {
-        ...memory[uuid],
-        type,
-        cord,
+        ...mem,
         isTrustful,
     };
     return response(200, res);

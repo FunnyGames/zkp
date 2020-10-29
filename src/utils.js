@@ -73,7 +73,8 @@ module.exports.randomType = () => {
 }
 
 module.exports.randomNumber = (min, max) => {
-    return min + Math.floor((Math.random() * max));
+    let diff = max - min;
+    return min + Math.floor((Math.random() * diff));
 }
 
 module.exports.hasDuplicates = (puzzle) => {
@@ -84,6 +85,10 @@ module.exports.hasDuplicates = (puzzle) => {
         digitMask[x - 1]++;
     }
     return digitMask.filter(x => x > 1).length > 0;
+}
+
+module.exports.countSolved = (board) => {
+    return board.filter(x => x > 0).length;
 }
 
 module.exports.drawSudoku = (board) => {
