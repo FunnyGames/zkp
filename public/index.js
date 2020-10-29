@@ -12,7 +12,18 @@ const startUrl = "http://localhost:3000/api/start"
 const nextUrl = "http://localhost:3000/api/next"
 var convertedRow = 0;
 var convertedCol = 0;
-var data = []
+var array = []
+var uuid = "123"
+
+const create_UUID = () =>{
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (dt + Math.random()*16)%16 | 0;
+        dt = Math.floor(dt/16);
+        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
 const convertCordToCube = (cord) =>{
     switch(cord){
         case 0:
@@ -54,73 +65,85 @@ const convertCordToCube = (cord) =>{
     }
 }
 //receiving the other responses from the server until he believes us
-const drawServerTable = (type, cord, board, reli) => {
+const drawServerTable = (type, cord, board, isTrustful) => {
     //Drawing the server board
-    for(var i = 0 ; i < ROW ; i++){
+    for(var i = 0 ; i < ROW * ROW ; i++){
         for(var j = 0 ; j < COL; j++){ 
-            var cell = document.getElementById(i + 'x' + j);
-            cell.innerText = table[i][j]
+            var cell = document.getElementById('v' + i + 'x' + j);
+            if(typeof cell !== 'undefined' && cell !== null) {
+                cell.innerHTML = board[i];
+              }
+            //cell.innerText = board[i]
+
          }
     }
-    document.getElementById("reli").value = reli;
-    getRowOrCol(type, cord)
+    document.getElementById("reli").value = isTrustful;
+    getRowOrCol(type, cord, isTrustful)
 
 }
-//receiving the first response from the server- type:(row/col), cord(0-8)
-const getRowOrCol = async(type, cord) => {
+const nextIteration = async (type, cord, array) => {
     try{
+        const data = {
+            uuid,
+            array,
+            type,
+            cord
+        }
+        var res = await axios.post(nextUrl, data);
+        console.log(res.data);
+        drawServerTable(res.data.type, res.data.cord, res.data.board, res.data.isTrustful)
+    }catch(err){
+        console.log(err.message)
+    }
+}
+//receiving the first response from the server- type:(row/col), cord(0-8)
+const getRowOrCol = (type, cord, isTrustful) => {
+    if(isTrustful){
+        console.log(isTrustful)
+        document.getElementById("reli").value = isTrustful;
+        return;
+    }
+    console.log(type + " " + cord)
         switch(type){
             case 'row':
-               data = [];
+                array = [];
                 for(var i = 0 ; i < COL ; i++){
-                    data.push(+document.getElementById(cord + 'x' + i).innerText)
-                    console.log(data)
+                    array.push(+document.getElementById(cord + 'x' + i).innerText)
                 }
-               var res = await axios.post(nextUrl, data);
-               drawServerTable(res.type, res.cord, res.board, res.reli)
+                nextIteration(type, cord, array)
                 break;
             case 'col':
-                data = [];
+                array = [];
                 for(var i = 0 ; i < ROW ; i++){
-                    data.push(+document.getElementById(i + 'x' + cord).innerText)
-                    console.log(data)
+                    array.push(+document.getElementById(i + 'x' + cord).innerText)
                 }
-                var res = await axios.post(nextUrl, data);
-                drawServerTable(res.type, res.cord, res.board, res.reli)
+                nextIteration(type, cord, array)
                 break;
             case 'cube':
-                data = [];
-                console.log(data)
+                array = [];
                 convertCordToCube(cord);
                 for(var i = 0 ; i < ROW / 3 ; i++){
                     for(var j = 0 ; j < COL / 3 ; j++){
-                        data.push(+document.getElementById(convertedRow + 'x' + convertedCol).innerText)
-                        console.log(data)
+                        array.push(+document.getElementById(convertedRow + 'x' + convertedCol).innerText)
                         convertedCol++;
                     }
                     convertedCol = (convertedCol % 3) + 3
                     convertedRow++;
                 }
-                var res = await axios.post(nextUrl, data);
-                drawServerTable(res.type, res.cord, res.board, res.reli)
-                break;
-            case true:
-                alert("Authorized")
+                nextIteration(type, cord, array)
                 break;
              default:
                  console.log('ERROR GETTING DATA');
                  break;   
-        }
-    }catch(err){
-        console.log("Error Getting row or col")
-    }
+            }
 
 }
 //Sending initial request to the server
 const sendRequest = async () => {
     try{
-        const res = await axios.get(startUrl);
-        getRowOrCol(res.type, res.cord);
+        const data = {uuid}
+        const res = await axios.post(startUrl, data);
+        getRowOrCol(res.data.type, res.data.cord, res.data.isTrustful);
     }catch(err){
         console.log("Error sending request to the server");
     }
@@ -130,6 +153,7 @@ const sendRequest = async () => {
     window.onload = init;
     //Filling the board with 1 out of 4 possible solutions 
     function init(){
+      //  uuid = create_UUID();
         var randomSol = Math.floor(Math.random() * NUM_OF_SOL); 
         for(var i = 0 ; i < ROW ; i++){
             for(var j = 0 ; j < COL; j++){ 
@@ -138,8 +162,7 @@ const sendRequest = async () => {
 
              }
         }
-        sendRequest();
-
+      
     }
         
 })(window, document, undefined);
