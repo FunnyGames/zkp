@@ -7,7 +7,7 @@ let sol =
     [[1, 5, 2, 4, 8, 9, 3, 7, 6], [7, 3, 9, 2, 5, 6, 8, 4, 1], [4, 6, 8, 3, 7, 1, 2, 9, 5], [3, 8, 7, 1, 2, 4, 6, 5, 9], [5, 9, 1, 7, 6, 3, 4, 2, 8], [2, 4, 6, 8, 9, 5, 7, 1, 3], [9, 1, 4, 6, 3, 7, 5, 8, 2], [6, 2, 5, 9, 4, 8, 1, 3, 7], [8, 7, 3, 5, 1, 2, 9, 6, 4]],
     [[5, 7, 8, 9, 2, 4, 1, 3, 6], [2, 9, 6, 3, 1, 7, 4, 8, 5], [1, 4, 3, 8, 6, 5, 2, 9, 7], [6, 3, 9, 4, 5, 2, 8, 7, 1], [7, 5, 2, 6, 8, 1, 3, 4, 9], [8, 1, 4, 7, 3, 9, 6, 5, 2], [9, 8, 1, 5, 4, 6, 7, 2, 3], [4, 2, 5, 1, 7, 3, 9, 6, 8], [3, 6, 7, 2, 9, 8, 5, 1, 4]]]
 
-const NUM_OF_SOL = 4
+const NUM_OF_SOL = 5;
 const COL = 9;
 const ROW = 9;
 
@@ -20,6 +20,7 @@ const autoStartButton = 'btn-auto-start';
 const startButton = 'btn-start';
 const nextButton = 'btn-next';
 const resetButton = 'btn-reset';
+const failCheckbox = 'checkbox-fail';
 
 // Variables
 var convertedRow = 0;
@@ -96,7 +97,7 @@ function setErrorMessage(msg) {
 function removeErrorMessage() {
     let e = document.getElementById('error-div');
     e.innerHTML = '';
-    e.style = '';
+    e.style = 'display: none;';
 }
 
 function displayError(error) {
@@ -119,10 +120,12 @@ const nextIteration = async () => {
         };
         var res = await axios.post(nextUrl, data);
         let { type, cord, isTrustful, board, trust } = res.data;
-        drawServerTable(type, cord, board);
+        drawServerTable(board);
         updateInfo(type, cord, isTrustful, trust);
     } catch (err) {
         displayError(err);
+        let { board } = err.response.data;
+        drawServerTable(board);
     }
 }
 
@@ -132,12 +135,12 @@ const populateArrayByRowOrCol = (type, cord) => {
     switch (type) {
         case 'row':
             for (var i = 0; i < COL; i++) {
-                array.push(+document.getElementById(cord + 'x' + i).innerText)
+                array.push(+document.getElementById(cord + 'x' + i).innerText);
             }
             break;
         case 'col':
             for (var i = 0; i < ROW; i++) {
-                array.push(+document.getElementById(i + 'x' + cord).innerText)
+                array.push(+document.getElementById(i + 'x' + cord).innerText);
             }
             break;
         case 'cube':
@@ -145,7 +148,7 @@ const populateArrayByRowOrCol = (type, cord) => {
             let startCol = convertedCol;
             for (var i = 0; i < ROW / 3; i++) {
                 for (var j = 0; j < COL / 3; j++) {
-                    array.push(+document.getElementById(convertedRow + 'x' + convertedCol).innerText)
+                    array.push(+document.getElementById(convertedRow + 'x' + convertedCol).innerText);
                     convertedCol++;
                 }
                 convertedCol = startCol;
@@ -158,6 +161,11 @@ const populateArrayByRowOrCol = (type, cord) => {
     }
     lastCord = cord;
     lastType = type;
+    const shouldFail = getFailCheck();
+    if (shouldFail) {
+        array[2] = 1;
+        array[3] = 1;
+    }
 }
 
 async function updateInfo(type, cord, isTrustful, trust) {
@@ -190,9 +198,17 @@ function getServerCell(x, y) {
 function setServerCell(x, y, val) {
     let cell = getServerCell(x, y);
     cell.innerHTML = val;
+    cell.style = '';
 }
 
-function drawServerTable(type, cord, board) {
+function setServerCellMarked(x, y) {
+    let cell = getServerCell(x, y);
+    if (cell.innerHTML) {
+        cell.style = 'background-color: beige;';
+    }
+}
+
+function drawServerTable(board) {
     for (let i = 0; i < ROW; ++i) {
         for (let j = 0; j < COL; ++j) {
             let index = j + i * ROW;
@@ -202,7 +218,47 @@ function drawServerTable(type, cord, board) {
             }
         }
     }
-    // TODO - mark last type and cord
+    if (lastCord >= 0 && lastType) {
+        switch (lastType) {
+            case 'row':
+                for (var i = 0; i < COL; i++) {
+                    setServerCellMarked(lastCord, i);
+                }
+                break;
+            case 'col':
+                for (var i = 0; i < ROW; i++) {
+                    setServerCellMarked(i, lastCord);
+                }
+                break;
+            case 'cube':
+                convertCordToCube(lastCord);
+                let startCol = convertedCol;
+                for (var i = 0; i < ROW / 3; i++) {
+                    for (var j = 0; j < COL / 3; j++) {
+                        setServerCellMarked(convertedRow, convertedCol);
+                        convertedCol++;
+                    }
+                    convertedCol = startCol;
+                    convertedRow++;
+                }
+                break;
+            default:
+                setErrorMessage(`Error request type: ${lastType}`);
+                break;
+        }
+    }
+}
+
+function getFailCheck() {
+    let x = document.getElementById(failCheckbox);
+    if (x) return x.checked;
+    return false;
+}
+
+function turnCheckboxOff() {
+    let x = document.getElementById(failCheckbox);
+    if (x)
+        x.checked = false;
 }
 
 const sendStartRequest = async () => {
@@ -210,8 +266,8 @@ const sendStartRequest = async () => {
         const data = { uuid };
         const res = await axios.post(startUrl, data);
         let { type, cord, isTrustful, board, trust } = res.data;
-        drawServerTable(type, cord, board);
         await updateInfo(type, cord, isTrustful, trust);
+        drawServerTable(board);
     } catch (err) {
         console.log("Error sending request to the server");
     }
@@ -271,7 +327,7 @@ function cancelRun() {
 
 function reset() {
     uuid = create_UUID();
-    //Filling the board with 1 out of 4 possible solutions
+    //Filling the board with 1 out of possible solutions
     var randomSol = Math.floor(Math.random() * NUM_OF_SOL);
     for (var i = 0; i < ROW; i++) {
         for (var j = 0; j < COL; j++) {
@@ -289,6 +345,7 @@ function reset() {
     turnButtonOn(startButton);
     turnButtonOn(autoStartButton);
     removeErrorMessage();
+    turnCheckboxOff(failCheckbox);
 }
 
 (function (window, document, undefined) {
